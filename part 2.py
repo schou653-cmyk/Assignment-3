@@ -82,17 +82,6 @@ class RaceSimulator:
         race = pd.concat(stints, ignore_index=True)
         return float((race["tire_time"] + race["pit_time"]).sum())
 
-def plot_tires(simulator):
-    """
-    Plot tire degradation curves for all tire compounds.
-
-    Parameters:
-        simulator: A RaceSimulator object containing tire data.
-
-    Returns:
-        None.
-    """
-    pass
 
 
 def plot_tires(simulator):

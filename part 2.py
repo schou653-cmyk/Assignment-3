@@ -82,6 +82,8 @@ class RaceSimulator:
         race = pd.concat(stints, ignore_index=True)
         return float((race["tire_time"] + race["pit_time"]).sum())
 
+
+
 def plot_tires(simulator):
     """
     Plot tire degradation curves for all tire compounds.
@@ -92,7 +94,19 @@ def plot_tires(simulator):
     Returns:
         None.
     """
-    pass
+    ages = np.arange(60)
+    plt.figure(figsize=(8, 6))
+    for tire in simulator.tires.index:
+        params = simulator.tires.loc[tire]
+        times = simulator.tire_time(
+            ages, params["Tmin"], params["Tmax"], params["alpha"], params["beta"]
+        )
+        plt.plot(ages, times, label=tire.lower())
+
+    plt.xlabel("tire age (laps)")
+    plt.ylabel("s/lap added")
+    plt.legend()
+    plt.show()
 
 
 def find_best_strategy(simulator):
@@ -104,8 +118,24 @@ def find_best_strategy(simulator):
         simulator: A RaceSimulator object.
 
     Returns:
-        The strategy with the lowest total tire and pit time.
+        A tuple containing (best_stint_lengths, best_tires, min_time).
     """
-    pass
+    best_time = float("inf")
+    best_strategy = None
 
-# bello chud
+    # Pit stops occur on laps 2 through 60 (since stint 1 must be at least 1 lap)
+    valid_pits = combinations(range(2, 61), 2)
+    valid_tires = [
+        t for t in combinations_with_replacement(simulator.tires.index, 3)
+        if len(set(t)) >= 2
+    ]
+
+    for pit1, pit2 in valid_pits:
+        stints = (pit1 - 1, pit2 - pit1, 61 - pit2)
+        for tires in valid_tires:
+            total_time = simulator.simulate(stints, tires)
+            if total_time < best_time:
+                best_time = total_time
+                best_strategy = (stints, tires, total_time)
+
+    return best_strategy

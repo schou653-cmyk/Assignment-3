@@ -43,6 +43,7 @@ class RaceSimulator:
         return Tmin + (Tmax - Tmin) / (1 + np.exp(-alpha * (age - beta)))
 
 
+
     def simulate(self, stint_lengths, tire_types):
         """
         Simulate a complete race strategy.
@@ -108,4 +109,27 @@ def find_best_strategy(simulator):
     """
     pass
 
-# bello chud
+
+def plot_tires(simulator):
+    """
+    Plot tire degradation curves for all tire compounds.
+
+    Parameters:
+        simulator: A RaceSimulator object containing tire data.
+
+    Returns:
+        None.
+    """
+    ages = np.arange(60)
+    plt.figure(figsize=(8, 6))
+    for tire in simulator.tires.index:
+        params = simulator.tires.loc[tire]
+        times = simulator.tire_time(
+            ages, params["Tmin"], params["Tmax"], params["alpha"], params["beta"]
+        )
+        plt.plot(ages, times, label=tire.lower())
+
+    plt.xlabel("tire age (laps)")
+    plt.ylabel("s/lap added")
+    plt.legend()
+    plt.show()
